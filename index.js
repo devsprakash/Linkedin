@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import app from "./app.js";
-import logger from "./config/logger.js";
+import app from "./src/app.js";
+import logger from "./src/config/logger.js";
 
 /* -------------------- Env -------------------- */
 dotenv.config();
@@ -27,12 +27,19 @@ mongoose
     process.exit(1);
   });
 
+
+
 /* -------------------- Server -------------------- */
 const PORT = process.env.PORT || 5000;
+
+app.get('/', (req, res) => {
+  res.send({ status: true, msg: "backend is running" })
+})
 
 const server = app.listen(PORT, () => {
   logger.info(`Server running on port ${PORT}`);
 });
+
 
 /* -------------------- Unhandled Rejection -------------------- */
 process.on("unhandledRejection", (err) => {

@@ -1,5 +1,4 @@
 import express from "express";
-import mongoose from "mongoose";
 import helmet from "helmet";
 import cors from "cors";
 import compression from "compression";
@@ -14,26 +13,43 @@ import { fileURLToPath } from "url";
 import routes from "./routes/index.route.js";
 import globalErrorHandler from "./middleware/errorHandler.js";
 import AppError from "./utils/AppError.js";
-import logger from "./config/logger.js";
 
 const app = express();
 
-/* -------------------- Fix __dirname in ES6 -------------------- */
+/* -------------------- Fix __dirname -------------------- */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /* -------------------- Trust Proxy -------------------- */
 app.enable("trust proxy");
 
-/* -------------------- Security Headers -------------------- */
+/* -------------------- Security -------------------- */
 app.use(helmet());
 
+/* -------------------- Rate Limiter -------------------- */
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
+app.use("/api", limiter);
+
 /* -------------------- CORS -------------------- */
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:3000",
+  "http://localhost:5173",
+];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed"));
+      }
+    },
     credentials: true,
-    optionsSuccessStatus: 200,
   })
 );
 
@@ -47,7 +63,7 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
-/* -------------------- Data Sanitization -------------------- */
+/* -------------------- Sanitization -------------------- */
 app.use(mongoSanitize());
 app.use(xss());
 
@@ -57,21 +73,15 @@ app.use(compression());
 /* -------------------- Static Files -------------------- */
 app.use(express.static(path.join(__dirname, "public")));
 
-/* -------------------- Request Time Middleware -------------------- */
-app.use((req, res, next) => {
-  req.requestTime = new Date().toISOString();
-  next();
-});
-
-/* -------------------- API Routes -------------------- */
+/* -------------------- Routes -------------------- */
 app.use("/api/v1", routes);
 
-/* -------------------- 404 Handler -------------------- */
+/* -------------------- 404 -------------------- */
 app.all("*", (req, res, next) => {
-  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+  next(new AppError(`Can't find ${req.originalUrl}`, 404));
 });
 
-/* -------------------- Global Error Handler -------------------- */
+/* -------------------- Error Handler -------------------- */
 app.use(globalErrorHandler);
 
 export default app;

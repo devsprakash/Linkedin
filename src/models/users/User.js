@@ -90,12 +90,6 @@ const userSchema = new mongoose.Schema({
     trim: true,
     match: [/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/, 'Please provide a valid URL']
   },
-  companyWebsite: {
-    type: String,
-    trim: true
-  },
-  
-  // Location
   country: {
     type: String,
     required: [true, 'Country is required'],
@@ -105,8 +99,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
-  
-  // Professional Info
   currentCompany: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Experience'
@@ -120,8 +112,6 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Industry is required'],
     trim: true
   },
-  
-  // Stats
   followers: {
     type: Number,
     default: 0
@@ -168,37 +158,7 @@ const userSchema = new mongoose.Schema({
     enum: ['none', 'email', 'phone', 'work', 'id'],
     default: 'none'
   },
-  
-  // Settings
-  isOpenToWork: {
-    type: Boolean,
-    default: false
-  },
-  openToSettings: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'OpenToWork'
-  },
-  
-  // Auth
-  password: {
-    type: String,
-    required: [true, 'Password is required'],
-    minlength: 8,
-    select: false
-  },
-  passwordChangedAt: Date,
-  passwordResetToken: String,
-  passwordResetExpires: Date,
-  
-  // Status
-  isActive: {
-    type: Boolean,
-    default: true
-  },
-  lastActive: {
-    type: Date,
-    default: Date.now
-  }
+
 }, {
   timestamps: true,
   toJSON: { virtuals: true },

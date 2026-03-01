@@ -4,8 +4,8 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import app from "./app.js";
-import logger from "./config/logger.js";
+import app from "./src/app.js";
+import logger from "./src/config/logger.js";
 
 /* -------------------- Fix __dirname for ES Modules -------------------- */
 const __filename = fileURLToPath(import.meta.url);

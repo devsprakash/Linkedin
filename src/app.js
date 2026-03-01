@@ -4,7 +4,6 @@ import cors from "cors";
 import compression from "compression";
 import mongoSanitize from "express-mongo-sanitize";
 import xss from "xss-clean";
-import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import path from "path";
@@ -25,13 +24,6 @@ app.enable("trust proxy");
 
 /* -------------------- Security -------------------- */
 app.use(helmet());
-
-/* -------------------- Rate Limiter -------------------- */
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-});
-app.use("/api", limiter);
 
 /* -------------------- CORS -------------------- */
 const allowedOrigins = [
